@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "logrms"
+version = "0.1.0"
+description = "A two-byte log-quantized RMS optimizer for PyTorch"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Matthew Belcher"},
+]
+keywords = ["deep-learning", "optimization", "pytorch", "quantization", "optimizer-state"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["torch>=2.1"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.urls]
+Paper = "https://github.com/OneByteToRuleThemAll/logrms/blob/main/paper/LogRMS_paper.pdf"
+Source = "https://github.com/OneByteToRuleThemAll/logrms"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+logrms = ["py.typed"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]

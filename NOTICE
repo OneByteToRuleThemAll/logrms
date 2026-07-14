@@ -1,0 +1,12 @@
+LogRMS
+Copyright 2026 Matthew Belcher
+
+The source code is licensed under Apache License 2.0.
+
+Unless otherwise noted, the paper, documentation, original figures, and
+tabular experimental results are licensed under Creative Commons Attribution
+4.0 International (CC BY 4.0).
+
+TinyStories is an external dataset and remains subject to its own terms.
+PyTorch, torchao, Adam, AdamW, and other third-party names belong to their
+respective owners. No affiliation or endorsement is implied.

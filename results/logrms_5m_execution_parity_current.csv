@@ -1,0 +1,233 @@
+implementation,step,train_loss_ema,validation_loss
+Eager reference,1000,3.5963,3.5649
+Eager reference,2000,2.7866,2.8008
+Eager reference,3000,2.4772,2.496
+Eager reference,4000,2.3113,2.3331
+Eager reference,5000,2.2441,2.2654
+Eager reference,6000,2.1726,2.2081
+Eager reference,7000,2.0834,2.1271
+Eager reference,8000,2.0474,2.0826
+Eager reference,9000,2.0105,2.0568
+Eager reference,10000,1.9926,2.0167
+Eager reference,11000,1.9644,1.9927
+Eager reference,12000,1.9334,1.9727
+Eager reference,13000,1.9215,1.9692
+Eager reference,14000,1.9162,1.9415
+Eager reference,15000,1.8974,1.9262
+Eager reference,16000,1.8798,1.9137
+Eager reference,17000,1.869,1.9007
+Eager reference,18000,1.8659,1.8908
+Eager reference,19000,1.8398,1.8801
+Eager reference,20000,1.8462,1.8735
+Eager reference,21000,1.8304,1.8659
+Eager reference,22000,1.8202,1.8566
+Eager reference,23000,1.8184,1.8589
+Eager reference,24000,1.8163,1.8452
+Eager reference,25000,1.8146,1.8431
+Eager reference,26000,1.8038,1.8353
+Eager reference,27000,1.7933,1.832
+Eager reference,28000,1.7887,1.8241
+Eager reference,29000,1.7809,1.8256
+Eager reference,30000,1.7748,1.8134
+Eager reference,31000,1.7805,1.8158
+Eager reference,32000,1.7773,1.8124
+Eager reference,33000,1.7653,1.8067
+Eager reference,34000,1.766,1.8014
+Eager reference,35000,1.7531,1.7975
+Eager reference,36000,1.7596,1.7919
+Eager reference,37000,1.7494,1.7904
+Eager reference,38000,1.7438,1.7867
+Eager reference,39000,1.7357,1.7845
+Eager reference,40000,1.7379,1.7766
+Eager reference,41000,1.7318,1.7794
+Eager reference,42000,1.723,1.7723
+Eager reference,43000,1.7212,1.7668
+Eager reference,44000,1.7227,1.7654
+Eager reference,45000,1.7212,1.7628
+Eager reference,46000,1.7155,1.7591
+Eager reference,47000,1.7212,1.7569
+Eager reference,48000,1.7126,1.7529
+Eager reference,49000,1.7124,1.7475
+Eager reference,50000,1.704,1.7466
+Eager reference,51000,1.7046,1.7446
+Eager reference,52000,1.6922,1.7383
+Eager reference,53000,1.6949,1.7364
+Eager reference,54000,1.6939,1.7344
+Eager reference,55000,1.684,1.7319
+Eager reference,56000,1.6954,1.7316
+Eager reference,57000,1.6852,1.7274
+Eager reference,58000,1.6684,1.7282
+Eager reference,59000,1.6639,1.7233
+Eager reference,60000,1.6721,1.7205
+Eager reference,61000,1.6801,1.7181
+Eager reference,62000,1.6533,1.7163
+Eager reference,63000,1.6744,1.7154
+Eager reference,64000,1.6663,1.7162
+Eager reference,65000,1.6703,1.715
+Eager reference,66000,1.6619,1.7087
+Eager reference,67000,1.6611,1.7051
+Eager reference,68000,1.661,1.6997
+Eager reference,69000,1.6651,1.6981
+Eager reference,70000,1.6442,1.6922
+Eager reference,71000,1.6379,1.6906
+Eager reference,72000,1.6542,1.6869
+Eager reference,73000,1.6505,1.6834
+Eager reference,74000,1.6286,1.6794
+Eager reference,75000,1.6255,1.6766
+Eager reference,76000,1.6351,1.6739
+Eager reference,77000,1.6366,1.6716
+Eager reference,78000,1.6302,1.6685
+Eager reference,79000,1.6138,1.6674
+Eager reference,80000,1.6165,1.6649
+Eager reference,81000,1.6216,1.6596
+Eager reference,82000,1.6156,1.6564
+Eager reference,83000,1.6034,1.6534
+Eager reference,84000,1.6014,1.6499
+Eager reference,85000,1.6119,1.6478
+Eager reference,86000,1.603,1.6455
+Eager reference,87000,1.5976,1.6419
+Eager reference,88000,1.5991,1.6404
+Eager reference,89000,1.5995,1.6365
+Eager reference,90000,1.5866,1.6344
+Eager reference,91000,1.5916,1.6317
+Eager reference,92000,1.5893,1.6302
+Eager reference,93000,1.5785,1.6268
+Eager reference,94000,1.5777,1.6244
+Eager reference,95000,1.5806,1.6234
+Eager reference,96000,1.5835,1.6208
+Eager reference,97000,1.5739,1.6189
+Eager reference,98000,1.5587,1.6169
+Eager reference,99000,1.5645,1.615
+Eager reference,100000,1.5638,1.6136
+Eager reference,101000,1.5698,1.6126
+Eager reference,102000,1.5638,1.6108
+Eager reference,103000,1.5602,1.6093
+Eager reference,104000,1.5586,1.608
+Eager reference,105000,1.5704,1.6068
+Eager reference,106000,1.5503,1.6057
+Eager reference,107000,1.5596,1.6048
+Eager reference,108000,1.5705,1.6038
+Eager reference,109000,1.5693,1.6032
+Eager reference,110000,1.5499,1.6027
+Eager reference,111000,1.5615,1.602
+Eager reference,112000,1.5488,1.6017
+Eager reference,113000,1.5583,1.6014
+Eager reference,114000,1.55,1.6009
+Eager reference,115000,1.5663,1.6008
+Eager reference,115178,1.5564,1.6008
+Compiled,1000,3.5941,3.56
+Compiled,2000,2.7872,2.7923
+Compiled,3000,2.4811,2.5027
+Compiled,4000,2.3146,2.3305
+Compiled,5000,2.244,2.2594
+Compiled,6000,2.1735,2.2056
+Compiled,7000,2.084,2.1309
+Compiled,8000,2.0486,2.0882
+Compiled,9000,2.014,2.054
+Compiled,10000,1.9941,2.0206
+Compiled,11000,1.9674,1.9927
+Compiled,12000,1.9357,1.9782
+Compiled,13000,1.9282,2.026
+Compiled,14000,1.917,1.9399
+Compiled,15000,1.8975,1.9258
+Compiled,16000,1.8812,1.9157
+Compiled,17000,1.87,1.9068
+Compiled,18000,1.8651,1.8932
+Compiled,19000,1.8405,1.8774
+Compiled,20000,1.8467,1.872
+Compiled,21000,1.8293,1.8666
+Compiled,22000,1.8221,1.8592
+Compiled,23000,1.8203,1.8597
+Compiled,24000,1.8169,1.8446
+Compiled,25000,1.8157,1.8408
+Compiled,26000,1.8055,1.8356
+Compiled,27000,1.7927,1.8311
+Compiled,28000,1.7898,1.8257
+Compiled,29000,1.781,1.8231
+Compiled,30000,1.7756,1.815
+Compiled,31000,1.7811,1.8144
+Compiled,32000,1.7779,1.8146
+Compiled,33000,1.7672,1.8056
+Compiled,34000,1.7669,1.8032
+Compiled,35000,1.7551,1.8007
+Compiled,36000,1.7603,1.7949
+Compiled,37000,1.7506,1.791
+Compiled,38000,1.7457,1.7853
+Compiled,39000,1.7381,1.7844
+Compiled,40000,1.7389,1.7799
+Compiled,41000,1.7309,1.7791
+Compiled,42000,1.7243,1.7723
+Compiled,43000,1.7229,1.768
+Compiled,44000,1.7245,1.7661
+Compiled,45000,1.7235,1.7627
+Compiled,46000,1.7164,1.7594
+Compiled,47000,1.7218,1.757
+Compiled,48000,1.7127,1.7542
+Compiled,49000,1.7128,1.7494
+Compiled,50000,1.7054,1.7489
+Compiled,51000,1.707,1.7452
+Compiled,52000,1.6941,1.7417
+Compiled,53000,1.6966,1.7379
+Compiled,54000,1.697,1.7356
+Compiled,55000,1.6838,1.7352
+Compiled,56000,1.6957,1.735
+Compiled,57000,1.6858,1.7284
+Compiled,58000,1.6689,1.7296
+Compiled,59000,1.665,1.7238
+Compiled,60000,1.6728,1.722
+Compiled,61000,1.6787,1.7192
+Compiled,62000,1.652,1.7145
+Compiled,63000,1.6713,1.7102
+Compiled,64000,1.6588,1.7115
+Compiled,65000,1.662,1.7101
+Compiled,66000,1.657,1.707
+Compiled,67000,1.6588,1.705
+Compiled,68000,1.6603,1.7015
+Compiled,69000,1.668,1.7
+Compiled,70000,1.65,1.6968
+Compiled,71000,1.6438,1.6972
+Compiled,72000,1.6596,1.6927
+Compiled,73000,1.6562,1.6911
+Compiled,74000,1.6324,1.6845
+Compiled,75000,1.6297,1.6816
+Compiled,76000,1.6381,1.6788
+Compiled,77000,1.6394,1.6748
+Compiled,78000,1.6342,1.6718
+Compiled,79000,1.6175,1.671
+Compiled,80000,1.6194,1.672
+Compiled,81000,1.625,1.663
+Compiled,82000,1.6177,1.6615
+Compiled,83000,1.6061,1.6562
+Compiled,84000,1.6041,1.6532
+Compiled,85000,1.6139,1.6505
+Compiled,86000,1.6067,1.6478
+Compiled,87000,1.5997,1.6454
+Compiled,88000,1.6015,1.6433
+Compiled,89000,1.602,1.6397
+Compiled,90000,1.5898,1.6381
+Compiled,91000,1.594,1.6349
+Compiled,92000,1.5913,1.633
+Compiled,93000,1.5815,1.6299
+Compiled,94000,1.579,1.6274
+Compiled,95000,1.5834,1.6259
+Compiled,96000,1.5854,1.624
+Compiled,97000,1.5768,1.6219
+Compiled,98000,1.5605,1.6197
+Compiled,99000,1.5668,1.6175
+Compiled,100000,1.5668,1.616
+Compiled,101000,1.5711,1.6153
+Compiled,102000,1.5652,1.6131
+Compiled,103000,1.5639,1.6119
+Compiled,104000,1.5618,1.6106
+Compiled,105000,1.5718,1.6091
+Compiled,106000,1.5526,1.6083
+Compiled,107000,1.5605,1.6071
+Compiled,108000,1.5726,1.6063
+Compiled,109000,1.5703,1.6057
+Compiled,110000,1.5519,1.605
+Compiled,111000,1.5639,1.6044
+Compiled,112000,1.5502,1.604
+Compiled,113000,1.5615,1.6036
+Compiled,114000,1.5511,1.6032
+Compiled,115000,1.5715,1.6031
+Compiled,115178,1.5588,1.6031

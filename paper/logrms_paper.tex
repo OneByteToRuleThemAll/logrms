@@ -1,0 +1,238 @@
+\documentclass[10pt,twocolumn]{article}
+
+\usepackage[margin=0.72in,columnsep=0.24in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{balance}
+
+\definecolor{linkblue}{HTML}{175A9C}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  citecolor=linkblue,
+  urlcolor=linkblue,
+  pdftitle={LogRMS: A Two-Byte Optimizer with TinyStories Training Results},
+  pdfauthor={Matthew Belcher}
+}
+\setlist{nosep,leftmargin=*}
+\setlength{\emergencystretch}{1.5em}
+
+\newcommand{\paperauthor}{Matthew Belcher}
+\newcommand{\paperaffiliation}{Computer Science, Open Institute of Technology (OPIT), Malta}
+
+\title{\textbf{LogRMS: A Two-Byte Optimizer with\\
+TinyStories Training Results}}
+\author{\paperauthor\\
+\small \paperaffiliation}
+\date{13 July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Adaptive optimizers often store several values for every model parameter.
+LogRMS uses exactly two persistent tensor bytes per parameter: an int8
+log-encoded second moment and a uint8 record of recent nonzero gradient signs.
+It computes the second-moment recurrence and current update in FP32, then uses
+stochastic rounding to store the moment for the next step. Sign history only
+reduces updates on coordinates whose gradients alternate frequently. Compared
+with ordinary FP32-state AdamW, the persistent tensor state is 75\% smaller.
+
+A controlled 49,515,008-parameter TinyStories systems benchmark processed
+471,765,959 training tokens on one NVIDIA L4. Compiled LogRMS achieved a median
+full-step time of 107.369 ms versus 107.263 ms for fused AdamW, a 0.10\%
+difference, while using 2.0000 versus 8.0000 persistent state bytes per
+parameter. Its total wall time was 3.5\% longer, mainly because of a
+207-second one-time compilation. Under the shared, untuned schedule, LogRMS
+finished at test perplexity 3.7698 versus 3.6911 for fused AdamW, a 2.13\% gap.
+Peak live PyTorch allocation was 12.7\% lower, although that number covers the
+whole training process rather than the optimizer alone. A separate
+5.06M-parameter run and small diagnostic tests show that the same optimizer can
+train reliably, but can struggle on curved objectives and rare gradient spikes.
+These results support LogRMS as a practical low-state optimizer candidate. They
+do not show that it always converges as well as AdamW.
+\end{abstract}
+
+\section{Introduction}
+
+Optimizer state can use a large share of training memory.
+Ordinary Adam maintains exponential moving averages of both gradients and
+squared gradients \cite{kingma2014adam}; in the common FP32-state form these two
+tensors require approximately eight bytes per parameter, before weights,
+gradients, master copies, or framework metadata. At large model sizes, a few
+bytes per parameter add up quickly.
+
+Quantized optimizers reduce this burden by compressing Adam's moments
+\cite{dettmers20218bit}, while factorized and structured approaches reduce the
+number of stored statistics \cite{shazeer2018adafactor,anil2019sm3}. LogRMS
+stores one coordinate-wise RMS statistic in one byte and uses a second byte for
+short sign history instead of keeping an Adam-style first moment.
+
+This paper provides:
+
+\begin{enumerate}
+  \item an exact two-byte per-parameter persistent tensor layout;
+  \item stochastic log encoding that preserves small changes in the stored
+        second moment;
+  \item a standard \texttt{torch.optim.Optimizer} implementation with normal
+        checkpoint support;
+  \item a \texttt{torch.compile} execution path; and
+  \item transformer results, timing measurements, exact state accounting, and
+        diagnostic tests.
+\end{enumerate}
+
+The results show that LogRMS can train 5.06M- and 49.5M-parameter transformers.
+On the 49.5M model, its compiled implementation had almost the same steady-state
+full-step time as fused AdamW. The experiments use one final-run seed at each
+scale, so they do not establish general convergence parity, distributed
+scaling, or a universal peak-memory advantage.
+
+\section{Related work}
+
+AdaGrad established per-coordinate adaptive scaling from accumulated squared
+gradients \cite{duchi2011adaptive}. Adam combines first- and second-moment
+exponential averages with bias correction \cite{kingma2014adam}; AdamW separates
+weight decay from the loss-gradient update \cite{loshchilov2017decoupled}.
+LogRMS keeps Adam's second-moment form and bias correction but removes the first
+moment.
+
+Memory-efficient alternatives include Adafactor's factored second moments
+\cite{shazeer2018adafactor}, SM3's covering-set accumulators
+\cite{anil2019sm3}, and block-wise 8-bit quantization of optimizer state
+\cite{dettmers20218bit}. LogRMS keeps a simple coordinate-wise state for tensors
+of any rank. Its two bytes are not necessarily the smallest possible
+representation when factorization or block metadata is considered.
+
+Sign-based methods demonstrate that gradient direction can remain useful after
+discarding magnitude \cite{bernstein2018signsgd}; Lion uses sign information in
+an update constructed from momentum-like state \cite{chen2023lion}. LogRMS does
+not use a sign-only update. It retains gradient magnitude through RMS
+normalization and uses sign history only to reduce selected updates. Stochastic
+rounding is commonly used with limited-precision arithmetic
+\cite{gupta2015limited}; here it is applied to the stored second moment.
+
+\section{Method}
+
+\subsection{RMS update without a first moment}
+
+For parameter $\theta$, gradient $g_t$, and second-moment decay $\beta_2$, the
+optimizer computes
+\begin{align}
+v_t &= \beta_2 \widetilde v_{t-1} + (1-\beta_2)g_t^2, \\
+\widehat v_t &= \frac{v_t}{1-\beta_2^t}, \\
+\theta_t' &= (1-\eta\lambda)\theta_{t-1}, \\
+\theta_t &= \theta_t' - \eta c_t
+\frac{g_t}{\sqrt{\widehat v_t}+\epsilon},
+\end{align}
+where $\eta$ is the learning rate, $\lambda$ is decoupled weight decay,
+$c_t$ is sign confidence, and $\widetilde v_{t-1}$ is the decoded stored state.
+All quantities in the recurrence and normalization are calculated in FP32. The
+fresh, unquantized $v_t$ is used for the current update; compression affects the
+next recurrence.
+
+The state encoding does not limit model precision. LogRMS can update FP32
+parameters because it keeps the current gradient and moment calculation in FP32.
+Only the stored second moment is compressed for the next step.
+
+\subsection{One-byte logarithmic second moment}
+
+An int8 code $q=-128$ denotes exact zero. Other codes decode as
+\begin{equation}
+\mathcal D(q) = 2^{q/2}, \qquad q\in\{-127,\ldots,127\}.
+\end{equation}
+The half-octave spacing covers approximately $2^{-63.5}$ to $2^{63.5}$.
+Given adjacent represented values $a\leq v_t\leq b$, encoding selects $b$ with
+probability
+\begin{equation}
+p_b = \frac{v_t-a}{b-a}
+\end{equation}
+and $a$ otherwise. Consequently, $\mathbb E[\mathcal D(q_t)]=v_t$ away from
+range clipping. A stateless integer hash of coordinate, parameter ordinal,
+step, and seed supplies the random value without consuming model RNG state or
+storing a residual. Stochastic rounding prevents small EMA changes from being
+rounded away repeatedly.
+
+\subsection{One-byte sign history}
+
+A uint8 variable-length prefix code stores zero through seven prior nonzero
+signs. The current nonzero sign completes an eight-sign sequence. If $T_t$ is
+the number of adjacent transitions among those eight signs, the confidence is
+\begin{equation}
+c_t = 1 - 0.8\frac{T_t}{7}, \qquad T_t\in\{0,\ldots,7\}.
+\end{equation}
+Thus $c_t\in[0.2,1]$: stable signs receive the ordinary RMS update and frequently
+alternating signs are damped. Confidence is exactly one until eight genuine
+nonzero observations exist. A zero gradient neither advances history nor counts
+as a negative sign.
+
+The implementation uses small cached lookup tensors to decode the history and
+map each 8-bit sequence to confidence.
+
+\subsection{Memory accounting}
+
+Table~\ref{tab:payload} reports unique persistent tensor storage held by each
+optimizer. Python objects, allocator rounding, and non-tensor metadata are not
+included. At one trillion parameters, the difference between two and eight
+bytes is about 5.46 TiB in total. Sharding divides that saving among workers.
+
+This number is different from CUDA allocator measurements.
+\texttt{max\_memory\_allocated} records the peak live tensor allocation across
+the complete PyTorch process, including parameters, gradients, activations,
+optimizer state, temporaries, compiler buffers, and evaluation.
+\texttt{max\_memory\_reserved} also reflects blocks retained by the
+caching allocator. Neither measurement isolates optimizer memory, and both may
+omit allocations made outside the PyTorch allocator. We report them as
+whole-process measurements, not as optimizer-state measurements.
+
+\begin{table}[t]
+\centering
+\caption{Persistent tensor state in the 49.5M systems benchmark. Measured
+8-bit AdamW includes its tensor metadata in the tested torchao configuration.}
+\label{tab:payload}
+\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Optimizer & B/parameter & Reduction vs. 8 B \\
+\midrule
+AdamW, FP32 moments & 8.0000 & --- \\
+torchao AdamW 8-bit & 2.0460 & 74.4\% \\
+LogRMS log8 & \textbf{2.0000} & \textbf{75.0\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Aggregate state payload implied by exact 8 and 2 B/parameter layouts.}
+\label{tab:scale}
+\small
+\begin{tabular}{rrrr}
+\toprule
+Parameters & AdamW & LogRMS & Saving \\
+ & (GiB) & (GiB) & (GiB) \\
+\midrule
+1B & 7.45 & 1.86 & 5.59 \\
+7B & 52.15 & 13.04 & 39.12 \\
+13B & 96.86 & 24.21 & 72.64 \\
+70B & 521.54 & 130.39 & 391.16 \\
+1T & 7,450.58 & 1,862.65 & 5,587.94 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{5.06M TinyStories convergence study}
+
+\subsection{Protocol}
+
+We trained a 5,063,424-parameter causal transformer on the official TinyStories
+dataset \cite{eldan2023tinystories}. Each final optimizer run saw exactly two
+complete training epochs: 943,531,918 tokens in 115,

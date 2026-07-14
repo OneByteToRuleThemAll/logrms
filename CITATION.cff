@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use LogRMS, please cite the software and accompanying paper."
+title: "LogRMS"
+type: software
+version: 0.1.0
+date-released: 2026-07-14
+authors:
+  - family-names: "Belcher"
+    given-names: "Matthew"
+repository-code: "https://github.com/OneByteToRuleThemAll/logrms"
+license: Apache-2.0
+preferred-citation:
+  type: article
+  title: "LogRMS: A Two-Byte Optimizer with TinyStories Training Results"
+  authors:
+    - family-names: "Belcher"
+      given-names: "Matthew"
+  year: 2026
