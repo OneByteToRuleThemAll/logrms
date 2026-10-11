@@ -76,6 +76,29 @@ set, so do not clip the same gradients a second time outside the optimizer.
 `LogRMS` exposes the slower reference implementation used for numerical parity
 and checkpoint tests. `LogRMSCompiled` is the intended training interface.
 
+## LogAdam (experimental)
+
+`LogAdam` and `LogAdamCompiled` are a separate two-byte variant. They keep the
+`int8` log second moment and use the second byte for an `int8` first moment
+instead of sign history, giving an Adam-style update at the same state size.
+
+```python
+from logrms import LogAdamCompiled
+
+optimizer = LogAdamCompiled(
+    model.parameters(),
+    lr=1e-3,
+    betas=(0.9, 0.999),
+    weight_decay=0.01,
+    max_norm=1.0,
+)
+```
+
+In a small CPU ablation the variant matched FP32 AdamW where LogRMS did not.
+That evidence is one tiny model with three seeds; it has not been run on the
+TinyStories benchmarks or timed on a GPU. See
+[`docs/logadam.md`](docs/logadam.md) for the codec, results, and limits.
+
 ## Memory accounting
 
 | Persistent state | Dtype | Bytes/parameter |
@@ -94,10 +117,14 @@ state alone.
 
 - `src/logrms/reference.py` — canonical correctness reference.
 - `src/logrms/compiled.py` — current `torch.compile` implementation.
+- `src/logrms/momentum.py` — experimental LogAdam variant (reference and
+  compiled).
 - `tests/` — state, semantics, checkpoint, and compiled-parity tests.
+- `benchmarks/` — small CPU ablation script.
 - `notebooks/` — self-contained Colab notebooks for the 5M compiled-parity run
   and 50M systems benchmark.
 - `docs/algorithm.md` — state encoding and update rule.
+- `docs/logadam.md` — LogAdam codec, update rule, and ablation results.
 - `docs/reproducibility.md` — experiment boundaries and verification steps.
 - `results/` — current paper's CSV evidence.
 - `paper/` — current PDF, LaTeX source, bibliography, and figures.

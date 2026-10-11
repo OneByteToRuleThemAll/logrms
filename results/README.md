@@ -14,3 +14,7 @@ These CSV files are the current evidence used by the accompanying paper.
 
 The files record single-run evidence. See `docs/reproducibility.md` and the
 paper for protocol details and limits on interpretation.
+
+`char_lm_ablation.csv` holds the small CPU ablation described in
+`docs/logadam.md`, produced by `benchmarks/char_lm_ablation.py`. It is separate
+from the paper's TinyStories evidence.
