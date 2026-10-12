@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import shutil
+import sys
 
 import pytest
 import torch
@@ -10,9 +11,11 @@ from logrms import LogAdam, LogAdamCompiled
 from logrms.momentum import _RATIO_MAX, _decode_ratio, _encode_ratio
 
 
-def make_pair(*, stochastic_rounding: bool = True, weight_decay: float = 0.01, **compiled):
+def make_pair(
+    *, stochastic_rounding: bool = True, weight_decay: float = 0.01, device: str = "cpu", **compiled
+):
     torch.manual_seed(123)
-    initial = [torch.randn(37), torch.randn(5, 11), torch.randn(3, 4, 5)]
+    initial = [t.to(device) for t in (torch.randn(37), torch.randn(5, 11), torch.randn(3, 4, 5))]
     reference_params = [torch.nn.Parameter(value.clone()) for value in initial]
     compiled_params = [torch.nn.Parameter(value.clone()) for value in initial]
     common = dict(
@@ -39,8 +42,8 @@ def set_grads(reference_params, compiled_params, step: int) -> None:
         grad = torch.randn(reference.shape, generator=generator)
         if step % 3 == 0:
             grad.reshape(-1)[:: 5 + index] = 0.0
-        reference.grad = grad.clone()
-        compiled.grad = grad.clone()
+        reference.grad = grad.to(reference.device)
+        compiled.grad = grad.to(compiled.device)
 
 
 def test_two_persistent_int8_bytes_per_element() -> None:
@@ -196,9 +199,18 @@ def test_compile_failure_runs_the_step_exactly_once() -> None:
         assert reference.state[ref_param]["step"] == compiled.state[fast_param]["step"] == 3
 
 
-@pytest.mark.skipif(shutil.which("g++") is None and shutil.which("c++") is None,
-                    reason="Inductor needs a C++ compiler on CPU")
-def test_real_inductor_graph_stays_close_to_reference() -> None:
+_INDUCTOR_DEVICES = []
+if torch.cuda.is_available():
+    _INDUCTOR_DEVICES.append("cuda")
+# Inductor's CPU backend uses MSVC (cl) on Windows and g++/clang++ elsewhere.
+_CPU_COMPILERS = ("cl",) if sys.platform == "win32" else ("g++", "c++", "clang++")
+if any(shutil.which(name) for name in _CPU_COMPILERS):
+    _INDUCTOR_DEVICES.append("cpu")
+
+
+@pytest.mark.skipif(not _INDUCTOR_DEVICES, reason="Inductor needs CUDA or a C++ compiler")
+@pytest.mark.parametrize("device", _INDUCTOR_DEVICES)
+def test_real_inductor_graph_stays_close_to_reference(device: str) -> None:
     """Exercise the real Inductor backend, not only ``compile_backend='eager'``.
 
     Generated code may round log2/exp2 differently from eager PyTorch, so a
@@ -206,7 +218,7 @@ def test_real_inductor_graph_stays_close_to_reference() -> None:
     boundary. The check is therefore statistical rather than bit-exact.
     """
     reference_params, compiled_params, reference, compiled = make_pair(
-        compile_backend="inductor", compile_mode="default"
+        compile_backend="inductor", compile_mode="default", device=device
     )
     for step in range(8):
         set_grads(reference_params, compiled_params, step)

@@ -1,0 +1,3 @@
+# Keep LF endings so tests/test_reference.py's pinned SHA-256 of
+# src/logrms/reference.py also holds on Windows checkouts.
+*.py text eol=lf
